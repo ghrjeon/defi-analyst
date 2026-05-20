@@ -1,0 +1,45 @@
+name: Pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # daily at 6am UTC
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "Comma-separated steps (default: all)"
+        required: false
+        default: ""
+      full:
+        description: "Force full ingest refresh"
+        type: boolean
+        default: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.steps }}" ]; then
+            ARGS="$ARGS --steps ${{ inputs.steps }}"
+          fi
+          if [ "${{ inputs.full }}" = "true" ]; then
+            ARGS="$ARGS --full"
+          fi
+          python run.py $ARGS

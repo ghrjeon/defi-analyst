@@ -56,7 +56,7 @@ Namespace: `ghrjeondata`
 
 Matviews compute all derived metrics (velocity, fee efficiency, etc.) from the raw uploaded tables. Dashboard queries SELECT from matviews only, never from raw tables. Matviews must be manually rematerialized in Dune UI after schema changes.
 
-23 dashboard queries in `queries/` are reference copies — live versions are on Dune.
+16 dashboard queries in `queries/` are reference copies — live versions are on Dune.
 
 Dashboard metadata in `references/` (query IDs, viz IDs, table schemas, color palette).
 
@@ -92,14 +92,11 @@ Dashboard metadata in `references/` (query IDs, viz IDs, table schemas, color pa
 
 ## AI development context
 
-This project was built end-to-end by Claude Code using DefiLlama's LLM-friendly docs ([`api-docs.defillama.com/llms-free.txt`](https://api-docs.defillama.com/llms-free.txt)) as the primary API reference. The `llms-free.txt` file provided a flat-text summary of all 31 free endpoints — enough for Claude Code to map 16 sources to 3 Supabase tables, design the incremental ingestion pattern, and build the async fetch architecture without manual API exploration.
-
-
-Three Claude Code skills in `.claude/skills/` encode project conventions so the agent can extend the pipeline (add metrics, sources, queries) without re-learning the architecture. See README.md "Built with AI" section for the full development process.
+This project was built end-to-end by Claude Code using DefiLlama's LLM-friendly docs ([`api-docs.defillama.com/llms-free.txt`](https://api-docs.defillama.com/llms-free.txt)) as the primary API reference. See README.md "Built with AI" section for the full development process.
 
 ## Skills
 
-Three Claude Code skills in `.claude/skills/` for working with this project:
+Three Claude Code skills in `.claude/skills/` encode project conventions so the agent can extend the pipeline (add metrics, sources, queries) without re-learning the architecture:
 
 | Skill | Trigger | What it does |
 |-------|---------|--------------|

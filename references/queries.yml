@@ -1,0 +1,791 @@
+database: dune
+namespace: ghrjeondata
+queries:
+
+  # ===================================================================
+  # Section 0: Base Metrics Layers
+  # ===================================================================
+
+  - name: defi_overview__daily__metrics
+    query_id: 7509574
+    description: >
+      Base aggregate metrics layer. Raw DefiLlama daily data + computed ratios:
+      velocity, fee_per_tvl, oi_to_tvl, stable_to_tvl, volume_to_stable.
+      Extend here when adding new aggregate data sources.
+    columns:
+      - name: date
+        description: Calendar date.
+      - name: tvl
+        description: Total DeFi TVL.
+      - name: dex_volume
+        description: Aggregate DEX volume (excludes perps, includes prediction markets).
+      - name: fees
+        description: Total protocol fees.
+      - name: stablecoin_mcap
+        description: Total stablecoin market cap.
+      - name: options_volume
+        description: Options trading volume.
+      - name: open_interest
+        description: Perpetual futures open interest.
+      - name: velocity
+        description: "Computed: dex_volume / tvl. Capital turnover."
+      - name: fee_per_tvl
+        description: "Computed: fees / tvl. Revenue per dollar locked."
+      - name: oi_to_tvl
+        description: "Computed: open_interest / tvl. Leverage proxy."
+      - name: stable_to_tvl
+        description: "Computed: stablecoin_mcap / tvl. Stablecoin penetration."
+      - name: volume_to_stable
+        description: "Computed: dex_volume / stablecoin_mcap. Trading intensity."
+      - name: active_addresses
+        description: Active DeFi protocol users (from DefiLlama active-users endpoint).
+      - name: fees_per_address
+        description: "Computed: fees / active_addresses. Fee revenue per active address."
+      - name: volume_per_address
+        description: "Computed: dex_volume / active_addresses. Volume per active address."
+
+  - name: defi_overview__chain__daily__metrics
+    query_id: 7509578
+    description: >
+      Base chain metrics layer. Raw DefiLlama per-chain daily data + computed ratios.
+      Extend here when adding Dune-native chain data (active addresses, tx counts, etc.).
+    columns:
+      - name: date
+        description: Calendar date.
+      - name: chain
+        description: Chain name.
+      - name: tvl
+        description: TVL on this chain.
+      - name: dex_volume
+        description: DEX volume on this chain.
+      - name: fees
+        description: Fees on this chain.
+      - name: stablecoin_mcap
+        description: Stablecoin mcap on this chain.
+      - name: open_interest
+        description: Open interest on this chain.
+      - name: velocity
+        description: "Computed: dex_volume / tvl."
+      - name: fee_per_tvl
+        description: "Computed: fees / tvl."
+      - name: oi_to_tvl
+        description: "Computed: open_interest / tvl."
+      - name: stable_to_tvl
+        description: "Computed: stablecoin_mcap / tvl."
+      - name: volume_to_stable
+        description: "Computed: dex_volume / stablecoin_mcap."
+      - name: active_addresses
+        description: Active DeFi protocol users on this chain.
+      - name: fees_per_address
+        description: "Computed: fees / active_addresses."
+      - name: volume_per_address
+        description: "Computed: dex_volume / active_addresses."
+
+  # ===================================================================
+  # Section 1: KPIs & Aggregate Overview
+  # ===================================================================
+
+  - name: defi_overview__kpis
+    query_id: 7509753
+    description: >
+      Current-state KPI counters: latest TVL, DEX volume (24h), fees (24h),
+      stablecoin mcap, open interest, plus 7d/30d/YTD percentage changes.
+    columns:
+      - name: data_as_of
+        description: Latest date in the dataset.
+      - name: tvl
+        description: Raw TVL value.
+      - name: dex_volume_24h
+        description: Raw latest day DEX volume.
+      - name: fees_24h
+        description: Raw latest day protocol fees.
+      - name: stablecoin_mcap
+        description: Raw total stablecoin market cap.
+      - name: open_interest
+        description: Raw total open interest.
+      - name: tvl_B
+        description: "TVL in billions (4 decimals). Suffix: B"
+      - name: dex_volume_24h_B
+        description: "DEX volume in billions (4 decimals). Suffix: B"
+      - name: fees_24h_M
+        description: "Fees in millions (4 decimals). Suffix: M"
+      - name: stablecoin_mcap_B
+        description: "Stablecoin mcap in billions (4 decimals). Suffix: B"
+      - name: open_interest_B
+        description: "Open interest in billions (4 decimals). Suffix: B"
+      - name: tvl_change_7d_pct
+        description: "TVL percentage change over 7 days. Suffix: %"
+      - name: tvl_change_30d_pct
+        description: "TVL percentage change over 30 days. Suffix: %"
+      - name: tvl_change_ytd_pct
+        description: "TVL percentage change year-to-date. Suffix: %"
+      - name: stablecoin_mcap_change_30d_pct
+        description: "Stablecoin mcap percentage change over 30 days. Suffix: %"
+      - name: open_interest_change_30d_pct
+        description: "Open interest percentage change over 30 days. Suffix: %"
+
+  - name: defi_overview__kpis__ytd
+    query_id: 7540211
+    description: >
+      Aggregate DeFi KPIs with YTD and YoY changes. Stock metrics (TVL,
+      stablecoins, OI) compare latest vs Jan 1 / 1y ago. Flow metrics
+      (volume, fees) compare recent 30d avg vs first-30d-of-year avg and
+      1y-ago 30d avg to smooth daily noise. Derived metrics (velocity,
+      fee efficiency) included with same comparison windows.
+    columns:
+      - name: data_as_of
+        description: Latest date in the dataset.
+      - name: tvl
+        description: Raw TVL value.
+      - name: stablecoin_mcap
+        description: Raw total stablecoin market cap.
+      - name: open_interest
+        description: Raw total open interest.
+      - name: tvl_B
+        description: "TVL in billions (2 decimals)."
+      - name: stablecoin_mcap_B
+        description: "Stablecoin mcap in billions (2 decimals)."
+      - name: open_interest_B
+        description: "Open interest in billions (2 decimals)."
+      - name: tvl_ytd_pct
+        description: "TVL YTD % change (latest vs Jan 1)."
+      - name: stablecoin_mcap_ytd_pct
+        description: "Stablecoin mcap YTD % change."
+      - name: open_interest_ytd_pct
+        description: "Open interest YTD % change."
+      - name: tvl_yoy_pct
+        description: "TVL YoY % change (latest vs 1y ago)."
+      - name: stablecoin_mcap_yoy_pct
+        description: "Stablecoin mcap YoY % change."
+      - name: open_interest_yoy_pct
+        description: "Open interest YoY % change."
+      - name: dex_volume_30d_avg_B
+        description: "Recent 30d average daily DEX volume in billions."
+      - name: fees_30d_avg_M
+        description: "Recent 30d average daily fees in millions."
+      - name: dex_volume_ytd_pct
+        description: "DEX volume YTD % change (recent 30d avg vs Jan 2026 avg)."
+      - name: fees_ytd_pct
+        description: "Fees YTD % change (recent 30d avg vs Jan 2026 avg)."
+      - name: dex_volume_yoy_pct
+        description: "DEX volume YoY % change (recent 30d avg vs 1y-ago 30d avg)."
+      - name: fees_yoy_pct
+        description: "Fees YoY % change (recent 30d avg vs 1y-ago 30d avg)."
+      - name: dex_velocity
+        description: "Latest Dex Velocity (vol/TVL)."
+      - name: fee_efficiency
+        description: "Latest Fee Efficiency (fees/TVL+)."
+      - name: oi_to_tvl
+        description: "Latest OI/TVL leverage ratio."
+      - name: dex_velocity_30d_avg
+        description: "Recent 30d average velocity."
+      - name: fee_efficiency_30d_avg
+        description: "Recent 30d average fee efficiency."
+      - name: dex_velocity_ytd_pct
+        description: "Velocity YTD % change (30d avg vs Jan avg)."
+      - name: fee_efficiency_ytd_pct
+        description: "Fee Efficiency YTD % change (30d avg vs Jan avg)."
+      - name: dex_velocity_yoy_pct
+        description: "Velocity YoY % change (30d avg vs 1y-ago avg)."
+      - name: fee_efficiency_yoy_pct
+        description: "Fee Efficiency YoY % change (30d avg vs 1y-ago avg)."
+      - name: ytd_start_date
+        description: "Reference: YTD start date used."
+      - name: yoy_ref_date
+        description: "Reference: YoY comparison date used."
+
+  - name: defi_overview__chain__pie_shares
+    query_id: 7540494
+    description: >
+      Top 9 chains by TVL + Other bucket. Current TVL, YTD cumulative
+      volume, YTD cumulative fees. Powers 3 pie chart visualizations.
+    viz_ids:
+      tvl_pie: 11491751
+      volume_ytd_pie: 11491753
+      fees_ytd_pie: 11491754
+    columns:
+      - name: chain
+        description: "Chain name (top 9 by TVL, rest grouped as 'Other')."
+      - name: tvl
+        description: Current TVL.
+      - name: total_volume_ytd
+        description: Cumulative DEX volume since Jan 1, 2026.
+      - name: total_fees_ytd
+        description: Cumulative DeFi fees since Jan 1, 2026.
+
+  - name: defi_overview__chain__pie_shares_adj
+    query_id: 7540668
+    description: >
+      Top 9 chains by TVL+ (OI-adjusted) + Other bucket. TVL+ = TVL + 20%
+      of OI (~5x leverage). Uses latest available OI per chain (within 7d)
+      to handle data lag. Also includes raw TVL, YTD volume, YTD fees.
+    viz_ids:
+      tvl_adj_pie: 11491971
+    columns:
+      - name: chain
+        description: "Chain name (top 9 by TVL+, rest grouped as 'Other')."
+      - name: tvl
+        description: Current raw TVL.
+      - name: tvl_adj
+        description: "Current TVL+ (TVL + 20% of latest OI)."
+      - name: total_volume_ytd
+        description: Cumulative DEX volume since Jan 1, 2026.
+      - name: total_fees_ytd
+        description: Cumulative DeFi fees since Jan 1, 2026.
+
+  # ===================================================================
+  # Section 2: Aggregate Timeseries + Derived Metrics (combined)
+  # ===================================================================
+
+  - name: defi_overview__daily__combined
+    query_id: 7515317
+    description: >
+      Combined aggregate timeseries: all raw metrics + derived ratios + 7d/30d MAs.
+      One query powers all aggregate and derived metric charts on the dashboard.
+      Replaces individual tvl/volume/fees/stablecoin/oi/velocity/fee_efficiency/oi_leverage queries.
+    columns:
+      - name: date
+        description: Calendar date.
+      - name: tvl
+        description: Total DeFi TVL.
+      - name: tvl_oi_adj
+        description: "TVL+ — adjusted TVL combining TVL with estimated perp margin (20% of OI, ~5x leverage)."
+      - name: dex_volume
+        description: Daily DEX volume (excludes perps, includes prediction markets).
+      - name: fees
+        description: Daily protocol fees.
+      - name: stablecoin_mcap
+        description: Total stablecoin circulating market cap.
+      - name: open_interest
+        description: Total perpetual futures open interest.
+      - name: dex_velocity
+        description: "Derived: dex_volume / tvl. Measures daily capital turnover per dollar of liquidity."
+      - name: fee_per_tvl
+        description: "Derived: fees / tvl_oi_adj. Measures fee generation per dollar of adjusted liquidity (TVL+)."
+      - name: oi_to_tvl
+        description: "Derived: open_interest / tvl. Leverage proxy."
+      - name: fee_per_vol
+        description: "Derived: fees / dex_volume. Take rate — fee extraction per dollar traded."
+      - name: tvl_7d_ma
+        description: 7-day moving average of TVL.
+      - name: tvl_30d_ma
+        description: 30-day moving average of TVL.
+      - name: dex_volume_7d_ma
+        description: 7-day moving average of DEX volume.
+      - name: dex_volume_30d_ma
+        description: 30-day moving average of DEX volume.
+      - name: fees_7d_ma
+        description: 7-day moving average of fees.
+      - name: fees_30d_ma
+        description: 30-day moving average of fees.
+      - name: stablecoin_mcap_7d_ma
+        description: 7-day moving average of stablecoin mcap.
+      - name: stablecoin_mcap_30d_ma
+        description: 30-day moving average of stablecoin mcap.
+      - name: open_interest_7d_ma
+        description: 7-day moving average of open interest.
+      - name: open_interest_30d_ma
+        description: 30-day moving average of open interest.
+      - name: dex_velocity_7d_ma
+        description: 7-day moving average of DEX velocity.
+      - name: dex_velocity_30d_ma
+        description: 30-day moving average of DEX velocity.
+      - name: fee_per_tvl_7d_ma
+        description: 7-day moving average of fee-per-TVL.
+      - name: fee_per_tvl_30d_ma
+        description: 30-day moving average of fee-per-TVL.
+      - name: oi_to_tvl_7d_ma
+        description: 7-day moving average of OI/TVL.
+      - name: oi_to_tvl_30d_ma
+        description: 30-day moving average of OI/TVL.
+      - name: fee_per_vol_7d_ma
+        description: 7-day moving average of take rate.
+      - name: fee_per_vol_30d_ma
+        description: 30-day moving average of take rate.
+
+  # ===================================================================
+  # Section 3: Chain Current Snapshot
+  # ===================================================================
+
+  - name: defi_overview__chain__current__summary
+    query_id: 7523954
+    description: >
+      Summary table for dashboard overview section. Chains with TVL >= $1B.
+      Raw values — formatting handled by viz layer.
+    columns:
+      - name: chain
+        description: Chain name.
+      - name: tvl
+        description: Current TVL.
+      - name: oi_notional
+        description: Open interest (notional value).
+      - name: margin_tvl_est
+        description: "Estimated margin TVL: OI * 0.20 (~5x leverage)."
+      - name: dex_volume_24h
+        description: "Dex+ Volume (24h): DEX volume (excludes perps)."
+      - name: defi_fees_24h
+        description: DeFi protocol fees (24h).
+      - name: velocity
+        description: "Dex Velocity: dex_volume / tvl."
+      - name: fee_efficiency
+        description: "Fee Efficiency: fees / tvl_oi_adj (TVL+)."
+      - name: volume_efficiency
+        description: "Volume Efficiency: fees / dex_volume."
+      - name: stablecoin_mcap
+        description: Stablecoin market cap on this chain.
+
+  - name: defi_overview__chain__current
+    query_id: 7509762
+    description: >
+      Current snapshot per chain (unfiltered). Latest values, YTD change,
+      OI/margin breakdown, derived efficiency metrics.
+    columns:
+      - name: chain
+        description: Chain name.
+      - name: tvl
+        description: Current TVL.
+      - name: tvl_ytd_pct
+        description: TVL YTD change.
+      - name: oi_notional
+        description: Open interest (notional value).
+      - name: margin_tvl_est
+        description: "Estimated margin TVL: OI * 0.20 (~5x leverage)."
+      - name: dex_volume_24h
+        description: "Dex+ Volume (24h): DEX volume (excludes perps)."
+      - name: total_volume_ytd
+        description: Cumulative DEX volume YTD.
+      - name: defi_fees_24h
+        description: DeFi protocol fees (24h).
+      - name: total_fees_ytd
+        description: Cumulative DeFi fees YTD.
+      - name: stablecoin_mcap
+        description: Stablecoin market cap on this chain.
+
+  - name: defi_overview__chain__current__derived
+    query_id: 7531349
+    viz_id: 11482127
+    description: >
+      Derived efficiency metrics per chain (unfiltered). Standalone table
+      for cross-chain comparison of velocity, fee efficiency, and volume efficiency.
+    columns:
+      - name: chain
+        description: Chain name.
+      - name: dex_velocity
+        description: "Dex+ Velocity: dex_volume / tvl."
+      - name: fee_efficiency
+        description: "DeFi Fee Efficiency: fees / tvl_oi_adj (TVL+). Clamped >= 0.0001."
+      - name: volume_efficiency
+        description: "Dex+ Volume Efficiency: fees / dex_volume. Clamped >= 0.0001."
+
+  # ===================================================================
+  # Section 4: Chain Daily Timeseries (tiered for chart legibility)
+  # ===================================================================
+
+  - name: defi_overview__chain__daily__tier1_mega
+    query_id: 7517108
+    description: >
+      Tier 1 Mega chains (current TVL >= $5B). Combined daily timeseries
+      with all metrics + derived ratios. Separated so mega chains don't
+      flatten smaller chains on stacked charts.
+    columns: &chain_daily_columns
+      - name: date
+        description: Calendar date.
+      - name: chain
+        description: Chain name.
+      - name: tvl
+        description: TVL on this chain.
+      - name: dex_volume
+        description: DEX volume on this chain.
+      - name: fees
+        description: Fees on this chain.
+      - name: stablecoin_mcap
+        description: Stablecoin mcap on this chain.
+      - name: open_interest
+        description: Open interest on this chain.
+      - name: dex_velocity
+        description: DEX volume / TVL.
+      - name: fee_per_tvl
+        description: Fees / TVL.
+      - name: oi_to_tvl
+        description: Open interest / TVL.
+      - name: dex_velocity_7d_ma
+        description: 7-day MA of DEX velocity.
+      - name: fee_per_tvl_7d_ma
+        description: 7-day MA of fee efficiency.
+
+  - name: defi_overview__chain__daily__tier2_large
+    query_id: 7517109
+    description: >
+      Tier 2 Large chains ($1B <= current TVL < $5B). Same columns as tier1.
+    columns: *chain_daily_columns
+
+  - name: defi_overview__chain_all__daily__combined
+    query_id: 7517088
+    description: >
+      All chains daily timeseries (unfiltered, no tier threshold).
+      Reference dataset for ad-hoc analysis. Not on dashboard.
+    columns:
+      - name: date
+        description: Calendar date.
+      - name: chain
+        description: Chain name.
+      - name: tvl
+        description: TVL on this chain.
+      - name: dex_volume
+        description: DEX volume on this chain.
+      - name: fees
+        description: Fees on this chain.
+      - name: stablecoin_mcap
+        description: Stablecoin mcap on this chain.
+      - name: open_interest
+        description: Open interest on this chain.
+      - name: dex_velocity
+        description: DEX volume / TVL.
+      - name: fee_per_tvl
+        description: Fees / TVL.
+      - name: oi_to_tvl
+        description: Open interest / TVL.
+
+  # ===================================================================
+  # Section 5: Chain Dominance & Share Shifts (TVL >= $1B)
+  # ===================================================================
+
+  - name: defi_overview__chain__tvl_share
+    query_id: 7509769
+    description: >
+      Monthly TVL market share by chain (TVL >= $1B). Shows dominance shifts.
+    columns:
+      - name: month_start
+        description: First day of the month.
+      - name: chain
+        description: Chain name.
+      - name: tvl_share_pct
+        description: Chain's share of total TVL that month.
+
+  - name: defi_overview__chain__volume_share
+    query_id: 7509770
+    description: >
+      Monthly DEX volume share by chain (TVL >= $1B). Shows where trading is migrating.
+    columns:
+      - name: month_start
+        description: First day of the month.
+      - name: chain
+        description: Chain name.
+      - name: volume_share_pct
+        description: Chain's share of total DEX volume that month.
+
+  # ===================================================================
+  # Section 7: Heatmaps & Rankings
+  # ===================================================================
+
+  - name: defi_overview__chain__monthly__growth_snapshot
+    query_id: 7509773
+    description: >
+      Per-chain growth snapshot. Stock metrics (TVL, stablecoins, OI) show 30d % change.
+      Flow metrics (volume, fees) show 30d daily average — % change on a single day is noisy.
+      Ordered by current TVL descending.
+    columns:
+      - name: chain
+        description: Chain name (ordered by current TVL).
+      - name: current_tvl
+        description: Latest TVL for ordering.
+      - name: tvl_30d_pct
+        description: TVL 30-day % change.
+      - name: avg_volume_30d
+        description: Average daily DEX volume over last 30 days.
+      - name: avg_fees_30d
+        description: Average daily fees over last 30 days.
+      - name: stable_30d_pct
+        description: Stablecoin mcap 30-day % change.
+      - name: oi_30d_pct
+        description: Open interest 30-day % change.
+      - name: velocity_current
+        description: Current velocity (volume/TVL).
+
+  - name: defi_overview__chain__monthly__volume_heatmap
+    query_id: 7512437
+    description: >
+      12-month median daily DEX volume heatmap by chain. Absolute values, not MoM %,
+      because volume is a flow metric. m-01 = latest month.
+    columns:
+      - name: chain
+        description: Chain name (ordered by current TVL).
+      - name: current_tvl
+        description: Latest TVL.
+      - name: median_12m
+        description: Median of the 12 monthly median volumes.
+      - name: "m-01 ... m-12"
+        description: Median daily volume per month (m-01 = latest).
+
+  - name: defi_overview__chain__monthly__velocity_heatmap
+    query_id: 7512360
+    description: >
+      12-month median daily velocity (vol/tvl) heatmap by chain. Absolute values.
+      m-01 = latest month.
+    columns:
+      - name: chain
+        description: Chain name (ordered by current TVL).
+      - name: current_tvl
+        description: Latest TVL.
+      - name: median_12m
+        description: Median of the 12 monthly median velocities.
+      - name: "m-01 ... m-12"
+        description: Median daily velocity per month (m-01 = latest).
+
+  - name: defi_overview__chain__monthly__tvl_heatmap
+    query_id: 7509774
+    description: >
+      Wide/pivoted TVL growth heatmap by chain. Columns m-01..m-12
+      (m-01 = latest month, m-12 = 12 months ago). Same pattern as
+      stablecoin_balances heatmaps.
+    columns:
+      - name: chain
+        description: Chain name (ordered by current TVL).
+      - name: current_tvl
+        description: Latest TVL.
+      - name: median_12m_growth
+        description: Median of the 12 monthly TVL growth rates.
+      - name: num_positive
+        description: Count of positive months, formatted as 'N/12'.
+      - name: "m-01 ... m-12"
+        description: MoM TVL growth rate per month (m-01 = latest).
+
+  - name: defi_overview__chain__monthly__volume_growth_heatmap
+    query_id: 7531438
+    viz_id: 11482208
+    description: >
+      12-month MoM growth heatmap for DEX Volume by chain.
+      m-01 = latest month. Chains with TVL >= $1B.
+    columns: *heatmap_growth_columns
+
+  - name: defi_overview__chain__monthly__fee_growth_heatmap
+    query_id: 7531444
+    viz_id: 11482209
+    description: >
+      12-month MoM growth heatmap for DeFi Fees by chain.
+      m-01 = latest month. Chains with TVL >= $1B.
+    columns: *heatmap_growth_columns
+
+  - name: defi_overview__chain__monthly__velocity_growth_heatmap
+    query_id: 7531391
+    viz_id: 11482184
+    description: >
+      12-month MoM growth heatmap for Dex+ Velocity (vol/tvl) by chain.
+      m-01 = latest month. Chains with TVL >= $1B.
+    columns: &heatmap_growth_columns
+      - name: chain
+        description: Chain name (ordered by current TVL).
+      - name: current_tvl
+        description: Latest TVL.
+      - name: median_12m_growth
+        description: Median of the 12 monthly MoM growth rates.
+      - name: num_positive
+        description: Count of positive months, formatted as 'N/12'.
+      - name: "m-01 ... m-12"
+        description: MoM growth rate per month (m-01 = latest).
+
+  - name: defi_overview__chain__monthly__fee_efficiency_heatmap
+    query_id: 7531392
+    viz_id: 11482185
+    description: >
+      12-month MoM growth heatmap for Fee Efficiency (fees/TVL+) by chain.
+      m-01 = latest month. Chains with TVL >= $1B.
+    columns: *heatmap_growth_columns
+
+  - name: defi_overview__chain__monthly__active_addresses_growth_heatmap
+    query_id: 7541137
+    viz_id: 11492446
+    description: >
+      12-month MoM growth heatmap for Active DeFi Addresses by chain.
+      m-01 = latest month. Ordered by current active addresses DESC.
+      Uses prev_val < 100 threshold (address count, not dollar amount).
+    columns:
+      - name: chain
+        description: Chain name (ordered by current active addresses).
+      - name: current_active_addresses
+        description: Latest active DeFi addresses.
+      - name: median_12m_growth
+        description: Median of the 12 monthly MoM growth rates.
+      - name: num_positive
+        description: Count of positive months, formatted as 'N/12'.
+      - name: "m-01 ... m-12"
+        description: MoM growth rate per month (m-01 = latest).
+
+  - name: defi_overview__chain__monthly__volume_efficiency_heatmap
+    query_id: 7531394
+    viz_id: 11482186
+    description: >
+      12-month MoM growth heatmap for Volume Efficiency (fees/vol) by chain.
+      m-01 = latest month. Chains with TVL >= $1B.
+    columns: *heatmap_growth_columns
+
+  # ===================================================================
+  # Section 8: Category Breakdowns (Snapshot)
+  # ===================================================================
+
+  - name: defi_overview__chain__fee_breakdown
+    query_id: 7525572
+    description: >
+      Fee breakdown by category per chain (top 10 by TVL).
+      Top 5 categories shown individually, rest rolled into "Other".
+      Snapshot data — refreshed each time the category table is re-uploaded.
+      Powers per-chain fee composition pie charts.
+    source_table: dune.ghrjeondata.defi_overview_chain_category
+    columns:
+      - name: chain
+        description: Chain name.
+      - name: category
+        description: Protocol category (Dexs, Lending, Derivatives, Prediction Market, etc.) or "Other".
+      - name: fees_24h
+        description: Total 24h fees for this category on this chain.
+      - name: fees_7d
+        description: Total 7d fees for this category on this chain.
+      - name: protocol_count
+        description: Number of protocols in this category on this chain.
+      - name: pct_of_chain
+        description: This category's share of total chain fees (0-1 scale).
+
+  - name: defi_overview__chain__volume_breakdown
+    query_id: 7525573
+    description: >
+      DEX volume breakdown by category per chain (top 10 by TVL).
+      Top 5 categories shown individually, rest rolled into "Other".
+      Snapshot data — refreshed each time the category table is re-uploaded.
+      Powers per-chain volume composition pie charts.
+    source_table: dune.ghrjeondata.defi_overview_chain_category
+    columns:
+      - name: chain
+        description: Chain name.
+      - name: category
+        description: Protocol category (Dexs, Prediction Market, Launchpad, etc.) or "Other".
+      - name: volume_24h
+        description: Total 24h volume for this category on this chain.
+      - name: volume_7d
+        description: Total 7d volume for this category on this chain.
+      - name: protocol_count
+        description: Number of protocols in this category on this chain.
+      - name: pct_of_chain
+        description: This category's share of total chain volume (0-1 scale).
+
+  # Per-chain fee breakdown queries (filter parent query 7525572 to one chain)
+  - name: defi_overview__chain__fee_breakdown__ethereum
+    query_id: 7525593
+    viz_id: 11476115
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__solana
+    query_id: 7525595
+    viz_id: 11476116
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__bsc
+    query_id: 7525597
+    viz_id: 11476117
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__base
+    query_id: 7525599
+    viz_id: 11476118
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__arbitrum
+    query_id: 7525601
+    viz_id: 11476119
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__hyperliquid_l1
+    query_id: 7525603
+    viz_id: 11476120
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__polygon
+    query_id: 7525605
+    viz_id: 11476121
+    parent: defi_overview__chain__fee_breakdown
+  - name: defi_overview__chain__fee_breakdown__avalanche
+    query_id: 7525607
+    viz_id: 11476122
+    parent: defi_overview__chain__fee_breakdown
+
+  # Per-chain volume breakdown queries (filter parent query 7525573 to one chain)
+  - name: defi_overview__chain__volume_breakdown__ethereum
+    query_id: 7525594
+    viz_id: 11476129
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__solana
+    query_id: 7525596
+    viz_id: 11476130
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__bsc
+    query_id: 7525598
+    viz_id: 11476131
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__base
+    query_id: 7525600
+    viz_id: 11476132
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__arbitrum
+    query_id: 7525602
+    viz_id: 11476134
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__hyperliquid_l1
+    query_id: 7525604
+    viz_id: 11476135
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__polygon
+    query_id: 7525606
+    viz_id: 11476137
+    parent: defi_overview__chain__volume_breakdown
+  - name: defi_overview__chain__volume_breakdown__avalanche
+    query_id: 7525608
+    viz_id: 11476138
+    parent: defi_overview__chain__volume_breakdown
+
+  - name: defi_overview__chain__tvl_breakdown
+    query_id: 7526112
+    description: >
+      TVL breakdown by category per chain (top 10 by TVL).
+      Top 5 categories shown individually, rest rolled into "Other".
+      Snapshot data from /protocols endpoint — protocol-level TVL aggregated by category.
+      Includes CEX wallets, bridges, and infra — full capital picture.
+      Powers per-chain TVL composition pie charts.
+    source_table: dune.ghrjeondata.defi_overview_chain_category
+    columns:
+      - name: chain
+        description: Chain name.
+      - name: category
+        description: Protocol category (CEX, Liquid Staking, Lending, Bridge, Dexs, etc.) or "Other".
+      - name: tvl
+        description: Total TVL for this category on this chain.
+      - name: protocol_count
+        description: Number of protocols in this category on this chain.
+      - name: pct_of_chain
+        description: This category's share of total chain TVL (0-1 scale).
+
+  # Per-chain TVL breakdown queries (filter parent query 7526112 to one chain)
+  - name: defi_overview__chain__tvl_breakdown__ethereum
+    query_id: 7526121
+    viz_id: 11476582
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__solana
+    query_id: 7526122
+    viz_id: 11476584
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__bsc
+    query_id: 7526123
+    viz_id: 11476586
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__base
+    query_id: 7526125
+    viz_id: 11476589
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__arbitrum
+    query_id: 7526126
+    viz_id: 11476591
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__hyperliquid_l1
+    query_id: 7526127
+    viz_id: 11476593
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__polygon
+    query_id: 7526128
+    viz_id: 11476595
+    parent: defi_overview__chain__tvl_breakdown
+  - name: defi_overview__chain__tvl_breakdown__avalanche
+    query_id: 7526129
+    viz_id: 11476597
+    parent: defi_overview__chain__tvl_breakdown

@@ -1,0 +1,47 @@
+# Visual styles for the DeFi Overview dashboard.
+# Category colors are applied via `valuesOptions` in Dune pie chart viz options.
+# All pie charts (fee, volume, TVL breakdowns) share this palette so the same
+# category always appears in the same color across chains.
+#
+# Only categories that appear in the top-5 per chain are listed here.
+# Long-tail categories fall into "Other" (light gray).
+
+category_colors:
+  # Core DeFi
+  Dexs:               "#6B9BD2"  # soft steel blue
+  Lending:            "#E8927C"  # muted coral
+  Derivatives:        "#9B8EC4"  # lavender
+  CDP:                "#C48DA0"  # dusty rose
+  Liquid Staking:     "#7BBEC5"  # soft teal
+  Staking Pool:       "#7CB5A3"  # sage
+
+  # Emerging activity
+  Prediction Market:  "#E4C06E"  # muted gold
+  Launchpad:          "#82B882"  # soft green
+  Trading App:        "#D4956A"  # terracotta
+
+  # Yield / capital management
+  Yield:              "#6DB895"  # muted emerald
+  Yield Aggregator:   "#93CDAE"  # light sage
+  RWA:                "#C9A660"  # warm khaki
+  Risk Curators:      "#BBA85E"  # olive gold
+  Onchain Capital Allocator: "#A99555"  # dark khaki
+  Basis Trading:      "#A08560"  # tan
+
+  # Infrastructure (shows up in TVL breakdowns)
+  Restaking:          "#88A0B0"  # steel
+  Liquid Restaking:   "#90B8C0"  # light steel teal
+  DEX Aggregator:     "#8B93C7"  # soft indigo
+
+  # Catch-all
+  Other:              "#C8CDD3"  # light gray
+
+# Timeseries color schemes (daily_combined charts).
+# Each scheme uses 3 intensities: light (raw data) → medium (30d MA) → dark (7d MA).
+timeseries_colors:
+  blue:    ["#C8D8E8", "#8FB0D0", "#4C78A8"]  # TVL
+  orange:  ["#F5DEB3", "#D4A84B", "#E68A00"]  # DEX Volume, DEX Velocity
+  green:   ["#C8E6C0", "#8BC07F", "#59A14F"]  # Fees, Fee Efficiency
+  coral:   ["#FFD0CB", "#FF9E96", "#FF6F61"]  # Open Interest
+  red:     ["#F5CBCC", "#EB9293", "#E15759"]  # OI Leverage
+  purple:  ["#D4C5E2", "#A893C4", "#7B68A8"]  # Volume Efficiency

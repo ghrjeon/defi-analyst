@@ -1,0 +1,310 @@
+database: dune
+dashboards:
+  - name: DeFi Overview — Cross-Chain Analysis
+    id: 212511
+    slug: defi-overview-cross-chain-analysis
+    url: https://dune.com/ghrjeondata/defi-overview-cross-chain-analysis
+    description: >
+      High-level DeFi health dashboard sourced from DefiLlama's free API.
+      16 endpoints across two domains: api.llama.fi (TVL, DEX volume, fees, OI,
+      options, active users) and stablecoins.llama.fi (stablecoin market cap).
+      Aggregate trends + cross-chain comparison for 25 chains.
+    stats: 35 viz widgets, 10 text widgets
+
+    sections:
+      # -----------------------------------------------------------------
+      # Section 1: Header + TOC + Analyst Info (rows 0-13)
+      # -----------------------------------------------------------------
+      - name: Header & Summary
+        description: Dashboard intro, table of contents, analyst info, and summary.
+        widgets:
+          - text: "Table of Contents"
+            widget_id: 2159530
+            position: {row: 0, col: 0, size_x: 2, size_y: 6}
+            notes: Numbered section links (Summary, Aggregate Trends, etc.).
+
+          - text: "Title + Summary"
+            widget_id: 2161629
+            position: {row: 0, col: 2, size_x: 4, size_y: 14}
+            notes: >
+              Dashboard title, intro paragraph, and Summary (As of May 2026).
+
+          - text: "Analyst Info"
+            widget_id: 2159440
+            position: {row: 6, col: 0, size_x: 2, size_y: 8}
+            notes: Analyst name, Twitter link, related dashboards.
+
+      # -----------------------------------------------------------------
+      # Section 2: Aggregate Trends (rows 14-48)
+      # -----------------------------------------------------------------
+      - name: Aggregate Trends
+        description: Commentary + KPI pies/counters + timeseries charts.
+        widgets:
+          - text: "Aggregate Trends Commentary"
+            widget_id: 2159438
+            position: {row: 14, col: 0, size_x: 6, size_y: 9}
+            notes: TVL decline, fee resilience, active addresses, DEX volume commentary.
+
+          # KPI row 1: TVL pie, Volume pie, Volume counter, Fees counter
+          - query: defi_overview__chain__pie_shares
+            viz: pie
+            viz_id: 11491751
+            position: {row: 23, col: 0, size_x: 2, size_y: 6}
+            notes: Current TVL by Chain. Top 9 + Other.
+
+          - query: defi_overview__chain__pie_shares
+            viz: pie
+            viz_id: 11491753
+            position: {row: 23, col: 2, size_x: 2, size_y: 6}
+            notes: YTD DEX Volume by Chain. Top 9 + Other.
+
+          - query: defi_overview__kpis
+            viz: counter
+            viz_id: 11460706
+            position: {row: 23, col: 4, size_x: 2, size_y: 3}
+            notes: 24h DEX Volume counter.
+
+          - query: defi_overview__kpis
+            viz: counter
+            viz_id: 11460707
+            position: {row: 26, col: 4, size_x: 2, size_y: 3}
+            notes: 24h Fees counter.
+
+          # KPI row 2: Fees pie, Active addresses pie, TVL counter, Addresses counter
+          - query: defi_overview__chain__pie_shares
+            viz: pie
+            viz_id: 11491754
+            position: {row: 29, col: 0, size_x: 2, size_y: 6}
+            notes: YTD Fees by Chain. Top 9 + Other.
+
+          - query: defi_overview__chain__pie_shares
+            viz: pie
+            viz_id: 11492528
+            position: {row: 29, col: 2, size_x: 2, size_y: 6}
+            notes: Active DeFi Addresses by Chain (24h). Top 9 + Other.
+
+          - query: defi_overview__kpis
+            viz: counter
+            viz_id: 11460705
+            position: {row: 29, col: 4, size_x: 2, size_y: 3}
+            notes: TVL counter.
+
+          - query: defi_overview__kpis
+            viz: counter
+            viz_id: 11492411
+            position: {row: 32, col: 4, size_x: 2, size_y: 3}
+            notes: Active DeFi Addresses counter (suffix M).
+
+          # Timeseries charts
+          - query: defi_overview__daily__combined
+            viz: area
+            viz_id: 11466236
+            columns: [date, tvl, tvl_7d_ma, tvl_30d_ma]
+            position: {row: 35, col: 0, size_x: 3, size_y: 7}
+            notes: TVL area chart with 7d/30d MA overlays.
+
+          - query: defi_overview__daily__combined
+            viz: bar
+            viz_id: 11466237
+            columns: [date, dex_volume, dex_volume_7d_ma, dex_volume_30d_ma]
+            position: {row: 35, col: 3, size_x: 3, size_y: 7}
+            notes: DEX volume as bars with 7d/30d MA line overlays.
+
+          - query: defi_overview__daily__combined
+            viz: area
+            viz_id: 11466238
+            columns: [date, fees, fees_7d_ma, fees_30d_ma]
+            position: {row: 42, col: 0, size_x: 3, size_y: 7}
+            notes: Fees area chart with 7d/30d MA overlays.
+
+          - query: defi_overview__daily__combined
+            viz: area
+            viz_id: 11492372
+            columns: [date, active_addresses, active_addresses_7d_ma, active_addresses_30d_ma]
+            position: {row: 42, col: 3, size_x: 3, size_y: 7}
+            notes: Active DeFi addresses area chart with 7d/30d MA overlays.
+
+      # -----------------------------------------------------------------
+      # Section 3: TVL Efficiency & Dex Velocity (rows 49-61)
+      # -----------------------------------------------------------------
+      - name: TVL Efficiency & Dex Velocity
+        description: Derived metrics — how productively capital is used.
+        widgets:
+          - text: "TVL Efficiency and Dex Velocity Commentary"
+            widget_id: 2159441
+            position: {row: 49, col: 0, size_x: 6, size_y: 6}
+            notes: TVL efficiency doubled since 2021, velocity discussion.
+
+          - query: defi_overview__daily__combined
+            viz: line
+            viz_id: 11466244
+            columns: [date, fee_per_tvl, fee_per_tvl_7d_ma, fee_per_tvl_30d_ma]
+            position: {row: 55, col: 0, size_x: 3, size_y: 7}
+            notes: TVL Efficiency (fees/TVL+) with 7d/30d MA overlays.
+
+          - query: defi_overview__daily__combined
+            viz: line
+            viz_id: 11466243
+            columns: [date, dex_velocity, dex_velocity_7d_ma, dex_velocity_30d_ma]
+            position: {row: 55, col: 3, size_x: 3, size_y: 7}
+            notes: DEX Velocity (vol/TVL) with 7d/30d MA overlays.
+
+      # -----------------------------------------------------------------
+      # Section 4: Chain Breakdown (rows 62-92)
+      # -----------------------------------------------------------------
+      - name: Chain Breakdown
+        description: Dominance shifts, chain rankings, per-chain derived metrics.
+        widgets:
+          - text: "Chain Breakdown Commentary"
+            widget_id: 2159437
+            position: {row: 62, col: 0, size_x: 6, size_y: 8}
+            notes: TVL tiers, volume dominance divergence, fee share, velocity/efficiency.
+
+          # Dominance charts + fee share
+          - query: defi_overview__chain__tvl_share
+            viz: stacked_area_100pct
+            viz_id: 11460734
+            position: {row: 70, col: 0, size_x: 2, size_y: 6}
+            notes: TVL Dominance — 100% stacked area by chain over time.
+
+          - query: defi_overview__chain__volume_share
+            viz: stacked_area_100pct
+            viz_id: 11460737
+            position: {row: 70, col: 2, size_x: 2, size_y: 6}
+            notes: Volume Dominance — 100% stacked area by chain over time.
+
+          - query: defi_overview__chain__fee_share
+            viz: stacked_area
+            viz_id: 11483358
+            position: {row: 70, col: 4, size_x: 2, size_y: 6}
+            notes: Fee Dominance — stacked area of fee share by chain.
+
+          # Chain rankings table
+          - query: defi_overview__chain__current
+            viz: table
+            viz_id: 11460726
+            position: {row: 76, col: 0, size_x: 6, size_y: 10}
+            notes: >
+              Chain Rankings — sortable table: chain, TVL, shares, volume,
+              fees, stablecoin mcap, OI, margin TVL, TVL+, velocity,
+              fee efficiency, active addresses, YTD changes.
+
+          # Per-chain derived metric line charts
+          - query: defi_overview__chain__daily__tier1_mega
+            viz: multi_line
+            viz_id: 11483440
+            position: {row: 86, col: 0, size_x: 3, size_y: 7}
+            notes: TVL Efficiency (7d MA) per chain.
+
+          - query: defi_overview__chain__daily__tier1_mega
+            viz: multi_line
+            viz_id: 11483442
+            position: {row: 86, col: 3, size_x: 3, size_y: 7}
+            notes: Dex Velocity (7d MA) per chain.
+
+      # -----------------------------------------------------------------
+      # Section 5: TVL & Fee Compositions (rows 93-110)
+      # -----------------------------------------------------------------
+      - name: TVL & Fee Compositions
+        description: >
+          Per-chain category breakdowns (TVL + fee). DeFi-only categories —
+          non-DeFi (CEX, Bridge, NFT, Gaming, etc.) filtered out.
+          Same category = same color across all charts. See styles.yml.
+        widgets:
+          - text: "TVL and Fee Compositions Commentary"
+            widget_id: 2159435
+            position: {row: 93, col: 0, size_x: 6, size_y: 6}
+            notes: TVL allocation by chain, fee composition diversity.
+
+          # TVL breakdown pie charts (per-chain)
+          - query: defi_overview__chain__tvl_breakdown (per-chain)
+            viz: pie
+            chains: [Ethereum, Solana, Hyperliquid L1, Polygon, Arbitrum, Base]
+            viz_ids: [11476582, 11476584, 11476593, 11476595, 11476591, 11476589]
+            position: {row: 99, col: 0, size_x: 1, size_y: 6}
+            notes: TVL breakdown by DeFi category per chain. 6 pies, 1 col each.
+
+          # Fee breakdown pie charts (per-chain)
+          - query: defi_overview__chain__fee_breakdown (per-chain)
+            viz: pie
+            chains: [Ethereum, Solana, Hyperliquid L1, Polygon, Arbitrum, Base]
+            viz_ids: [11476115, 11476116, 11476120, 11476121, 11476119, 11476118]
+            position: {row: 105, col: 0, size_x: 1, size_y: 6}
+            notes: Fee breakdown by DeFi category per chain. 6 pies, 1 col each.
+
+      # -----------------------------------------------------------------
+      # Section 6: Limitations & Methodology (rows 111-126)
+      # -----------------------------------------------------------------
+      - name: Limitations & Methodology
+        description: Data gaps, future analysis directions, and metric definitions.
+        widgets:
+          - text: "Limitations and Future Analysis"
+            widget_id: 2159439
+            position: {row: 111, col: 0, size_x: 6, size_y: 8}
+            notes: Perps volume gap, CLOB ambiguity, TVL provider variance, address gaps.
+
+          - text: "Methodology"
+            widget_id: 2159517
+            position: {row: 119, col: 0, size_x: 6, size_y: 8}
+            notes: >
+              Core metric definitions, derived metrics, data source and coverage.
+              Data source: DefiLlama free API — 16 endpoints across api.llama.fi
+              (TVL, DEX volume, fees, OI, options, active users) and
+              stablecoins.llama.fi (stablecoin market cap). On-chain metrics powered
+              by community-maintained protocol adapters (TVL adapters, volume/fees/
+              derivatives adapters). See llms-free.txt for API reference.
+
+      # -----------------------------------------------------------------
+      # Section 7: Appendix — Growth Heatmaps (rows 127-152)
+      # -----------------------------------------------------------------
+      - name: Appendix — Growth Heatmaps
+        description: Monthly trends at a glance — MoM growth rates.
+        widgets:
+          - text: "Appendix Header"
+            widget_id: 2159436
+            position: {row: 127, col: 0, size_x: 6, size_y: 4}
+            notes: "Appendix / Growth Heatmaps (12 Months) header."
+
+          - query: defi_overview__chain__monthly__tvl_heatmap
+            viz: table
+            viz_id: 11460741
+            position: {row: 131, col: 0, size_x: 6, size_y: 7}
+            notes: TVL MoM growth % heatmap. Green/red cells.
+
+          - query: defi_overview__chain__monthly__fee_growth_heatmap
+            viz: table
+            viz_id: 11482209
+            position: {row: 138, col: 0, size_x: 6, size_y: 7}
+            notes: Fee MoM growth % heatmap.
+
+          - query: defi_overview__chain__monthly__volume_growth_heatmap
+            viz: table
+            viz_id: 11482208
+            position: {row: 145, col: 0, size_x: 6, size_y: 7}
+            notes: Volume MoM growth % heatmap.
+
+    # -----------------------------------------------------------------
+    # Not on dashboard (created but not placed)
+    # -----------------------------------------------------------------
+    not_on_dashboard:
+      - viz_id: 11492446
+        query: defi_overview__chain__monthly__active_addresses_growth_heatmap
+        notes: Active Addresses MoM growth % heatmap. Created but not added to layout.
+      - viz_id: 11492373
+        query: defi_overview__daily__combined
+        notes: Fees per active address (aggregate) line chart. Created but not placed.
+      - viz_id: 11492374
+        query: defi_overview__chain__daily__tier1_mega
+        notes: Active addresses (7d MA) per chain. Created but not placed.
+      - viz_id: 11492375
+        query: defi_overview__chain__daily__tier1_mega
+        notes: Fees per address (7d MA) per chain. Created but not placed.
+      - viz_id: 11482184
+        query: defi_overview__chain__monthly__velocity_growth_heatmap
+        notes: Velocity MoM growth % heatmap. Removed from layout.
+      - viz_id: 11482185
+        query: defi_overview__chain__monthly__fee_efficiency_heatmap
+        notes: Fee Efficiency MoM growth % heatmap. Removed from layout.
+      - viz_ids: [11476129, 11476130, 11476135, 11476137, 11476134, 11476132]
+        query: defi_overview__chain__volume_breakdown (per-chain)
+        notes: Volume breakdown pie charts. Removed from layout.

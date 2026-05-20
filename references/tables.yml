@@ -1,0 +1,321 @@
+database: dune
+namespace: ghrjeondata
+source: defillama
+tables:
+  - name: defi_overview_daily
+    type: uploaded_table
+    table: dune.ghrjeondata.defi_overview_daily
+    description: >
+      Aggregate daily DeFi metrics sourced from DefiLlama free API.
+      One row per day. Covers TVL, DEX volume (excludes perps, includes prediction markets), protocol fees/revenue,
+      stablecoin market cap, options volume, and perpetual open interest.
+      Timeseries starts 2016 (volume) / 2017 (TVL) with coverage expanding
+      as each metric came online.
+    granularity: daily
+    update_method: clear + insert (full refresh via upload.py)
+    columns:
+      - name: date
+        type: timestamp
+        description: Calendar date (UTC midnight).
+      - name: tvl
+        type: double
+        nullable: true
+        unit: usd
+        description: Total value locked across all DeFi protocols and chains.
+      - name: dex_volume
+        type: double
+        nullable: true
+        unit: usd
+        description: Aggregate DEX trading volume (excludes perps, includes prediction markets) (all protocols, all chains).
+      - name: fees
+        type: double
+        nullable: true
+        unit: usd
+        description: Total protocol fees/revenue across all protocols.
+      - name: stablecoin_mcap
+        type: double
+        nullable: true
+        unit: usd
+        description: Total circulating stablecoin market cap (USD-pegged only).
+      - name: options_volume
+        type: double
+        nullable: true
+        unit: usd
+        description: Aggregate on-chain options trading volume.
+      - name: open_interest
+        type: double
+        nullable: true
+        unit: usd
+        description: Total perpetual futures open interest across on-chain protocols.
+
+  - name: defi_overview_chain_daily
+    type: uploaded_table
+    table: dune.ghrjeondata.defi_overview_chain_daily
+    description: >
+      Per-chain daily DeFi metrics sourced from DefiLlama free API.
+      One row per (date, chain). Covers TVL, DEX volume, fees,
+      stablecoin market cap, and open interest for the top 10 chains.
+      Enables cross-chain comparison and trend identification.
+    granularity: daily
+    update_method: clear + insert (full refresh via upload.py)
+    chains:
+      - Ethereum
+      - Solana
+      - BSC
+      - Bitcoin
+      - Tron
+      - Base
+      - Arbitrum
+      - Hyperliquid L1
+      - Polygon
+      - MegaETH
+      - Avalanche
+      - Sui
+      - Monad
+      - Optimism
+      - Cronos
+      - Ink
+      - Aptos
+      - Mantle
+      - Starknet
+      - Stellar
+      - Movement
+      - Flare
+      - Cardano
+      - Near
+      - Rootstock
+    columns:
+      - name: date
+        type: timestamp
+        description: Calendar date (UTC midnight).
+      - name: chain
+        type: varchar
+        description: Chain name (e.g., Ethereum, Solana, Base).
+      - name: tvl
+        type: double
+        nullable: true
+        unit: usd
+        description: Total value locked on this chain.
+      - name: dex_volume
+        type: double
+        nullable: true
+        unit: usd
+        description: DEX trading volume (excludes perps, includes prediction markets) on this chain.
+      - name: fees
+        type: double
+        nullable: true
+        unit: usd
+        description: Total protocol fees/revenue on this chain.
+      - name: stablecoin_mcap
+        type: double
+        nullable: true
+        unit: usd
+        description: Total circulating stablecoin market cap on this chain (USD-pegged only).
+      - name: open_interest
+        type: double
+        nullable: true
+        unit: usd
+        description: Perpetual futures open interest on this chain.
+
+  - name: defi_overview_chain_category
+    type: uploaded_table
+    table: dune.ghrjeondata.defi_overview_chain_category
+    description: >
+      Fee, volume, and TVL breakdown by protocol category per chain (snapshot).
+      Sourced from DefiLlama /overview/fees/{chain}, /overview/dexs/{chain},
+      and /protocols (TVL by category). Aggregated by category per chain.
+      Re-uploaded on each refresh (clear + insert). Not a timeseries — latest values only.
+    granularity: snapshot
+    update_method: clear + insert (full refresh via upload.py --table category --clear)
+    columns:
+      - name: chain
+        type: varchar
+        description: Chain name.
+      - name: metric
+        type: varchar
+        description: "'fees', 'dex_volume', or 'tvl'."
+      - name: category
+        type: varchar
+        description: Protocol category from DefiLlama (Dexs, Lending, Derivatives, Prediction Market, etc.).
+      - name: total24h
+        type: double
+        nullable: true
+        unit: usd
+        description: Total 24h value for this category on this chain. For metric='tvl', this is current TVL (not 24h flow).
+      - name: total7d
+        type: double
+        nullable: true
+        unit: usd
+        description: Total 7d value for this category on this chain.
+      - name: protocol_count
+        type: integer
+        nullable: true
+        description: Number of protocols in this category on this chain.
+
+  # ---------------------------------------------------------------
+  # Materialized Views (single source of truth for dashboard queries)
+  # ---------------------------------------------------------------
+
+  - name: defi_overview_daily_metrics
+    type: materialized_view
+    table: dune.ghrjeondata.result_defi_overview_daily_metrics
+    description: >
+      Aggregate daily metrics. Raw DefiLlama data + computed ratios.
+      All dashboard queries read from this matview, not from the raw uploaded table.
+    granularity: daily
+    columns:
+      - name: date
+        type: timestamp
+        description: Calendar date (UTC midnight).
+      - name: tvl
+        type: double
+        nullable: true
+        unit: usd
+        description: Total value locked across all DeFi protocols and chains.
+      - name: dex_volume
+        type: double
+        nullable: true
+        unit: usd
+        description: Aggregate DEX trading volume (excludes perps, includes prediction markets).
+      - name: fees
+        type: double
+        nullable: true
+        unit: usd
+        description: Total protocol fees/revenue.
+      - name: stablecoin_mcap
+        type: double
+        nullable: true
+        unit: usd
+        description: Total circulating stablecoin market cap.
+      - name: options_volume
+        type: double
+        nullable: true
+        unit: usd
+        description: Aggregate on-chain options trading volume.
+      - name: open_interest
+        type: double
+        nullable: true
+        unit: usd
+        description: Total perpetual futures open interest.
+      - name: velocity
+        type: double
+        nullable: true
+        description: "dex_volume / tvl. Capital turnover."
+      - name: fee_per_tvl
+        type: double
+        nullable: true
+        description: "fees / tvl. Revenue per dollar locked."
+      - name: oi_to_tvl
+        type: double
+        nullable: true
+        description: "open_interest / tvl. Leverage proxy."
+      - name: stable_to_tvl
+        type: double
+        nullable: true
+        description: "stablecoin_mcap / tvl. Stablecoin penetration."
+      - name: volume_to_stable
+        type: double
+        nullable: true
+        description: "dex_volume / stablecoin_mcap. Trading intensity."
+
+  - name: defi_overview_chain_daily_metrics
+    type: materialized_view
+    table: dune.ghrjeondata.result_defi_overview_chain_daily_metrics
+    description: >
+      Per-chain daily metrics. Raw DefiLlama data + computed ratios.
+      All chain-level dashboard queries read from this matview.
+      Extend here when adding Dune-native chain data (active addresses, tx counts).
+    granularity: daily
+    chains:
+      - Ethereum
+      - Solana
+      - BSC
+      - Bitcoin
+      - Tron
+      - Base
+      - Arbitrum
+      - Hyperliquid L1
+      - Polygon
+      - MegaETH
+      - Avalanche
+      - Sui
+      - Monad
+      - Optimism
+      - Cronos
+      - Ink
+      - Aptos
+      - Mantle
+      - Starknet
+      - Stellar
+      - Movement
+      - Flare
+      - Cardano
+      - Near
+      - Rootstock
+    columns:
+      - name: date
+        type: timestamp
+        description: Calendar date (UTC midnight).
+      - name: chain
+        type: varchar
+        description: Chain name.
+      - name: tvl
+        type: double
+        nullable: true
+        unit: usd
+        description: Total value locked on this chain.
+      - name: dex_volume
+        type: double
+        nullable: true
+        unit: usd
+        description: DEX trading volume (excludes perps, includes prediction markets) on this chain.
+      - name: fees
+        type: double
+        nullable: true
+        unit: usd
+        description: Total protocol fees/revenue on this chain.
+      - name: stablecoin_mcap
+        type: double
+        nullable: true
+        unit: usd
+        description: Stablecoin market cap on this chain.
+      - name: open_interest
+        type: double
+        nullable: true
+        unit: usd
+        description: Perpetual futures open interest on this chain.
+      - name: velocity
+        type: double
+        nullable: true
+        description: "dex_volume / tvl."
+      - name: fee_per_tvl
+        type: double
+        nullable: true
+        description: "fees / tvl."
+      - name: oi_to_tvl
+        type: double
+        nullable: true
+        description: "open_interest / tvl."
+      - name: stable_to_tvl
+        type: double
+        nullable: true
+        description: "stablecoin_mcap / tvl."
+      - name: volume_to_stable
+        type: double
+        nullable: true
+        description: "dex_volume / stablecoin_mcap."
+
+  # Derived metric definitions (reference for what the matviews compute)
+  derived_metrics:
+    - name: velocity
+      formula: dex_volume / NULLIF(tvl, 0)
+      description: Capital turnover — excludes perp volume (paywalled), includes prediction markets. Understated for perps-heavy chains (Hyperliquid, Arbitrum).
+    - name: fee_per_tvl
+      formula: fees / NULLIF(tvl, 0)
+      description: Capital efficiency — revenue generated per dollar of TVL. Higher = better monetization.
+    - name: volume_to_stablecoin
+      formula: dex_volume / NULLIF(stablecoin_mcap, 0)
+      description: Trading intensity relative to available stablecoin liquidity.
+    - name: oi_to_tvl
+      formula: open_interest / NULLIF(tvl, 0)
+      description: Leverage ratio — how much leveraged exposure relative to locked capital.

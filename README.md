@@ -153,7 +153,7 @@ On-chain metrics are powered by community-maintained protocol adapters:
 | Group | Sources | What it covers |
 |-------|---------|----------------|
 | stablecoins | 1 | Historical total stablecoin market cap |
-| tvl | 1 | Historical total DeFi TVL across all chains |
+| tvl | 2 | Historical DeFi TVL, TVL by category per chain |
 | volumes | 4 | DEX volume, options volume, open interest, per-chain DEX volume categories |
 | fees | 2 | Protocol fees/revenue (aggregate + per-chain categories) |
 | chain_history | 5 | Per-chain timeseries: TVL, volume, fees, stablecoins, OI |
@@ -175,7 +175,7 @@ requirements.txt              # aiohttp, supabase, python-dotenv
 .env.example                  # Template for credentials
 .github/workflows/
   pipeline.yml                # Scheduled daily pipeline (6am UTC)
-queries/                      # 23 Dune SQL files (reference copies)
+queries/                      # 16 Dune SQL files (reference copies)
 references/                   # Dashboard metadata
   queries.yml                 #   Query IDs, columns, viz IDs
   tables.yml                  #   Uploaded table + matview schemas
@@ -239,12 +239,11 @@ This pipeline was designed and built with assistance from [Claude Code](https://
 
 **1. API discovery via `llms-free.txt`**
 
-DefiLlama publishes a plain-text, LLM-optimized version of their API docs at [`api-docs.defillama.com/llms-free.txt`](https://api-docs.defillama.com/llms-free.txt). Claude Code consumed this file to understand all 31 free endpoints — their paths, parameters, response shapes, and relationships. No manual API exploration was needed. This is far more effective than scraping HTML docs or reading OpenAPI specs — the flat text format is purpose-built for LLM consumption.
-
+DefiLlama publishes a plain-text, LLM-optimized version of their API docs at [`api-docs.defillama.com/llms-free.txt`](https://api-docs.defillama.com/llms-free.txt). Claude Code consumed this file to understand all 31 free endpoints — their paths, parameters, response shapes, and relationships. No manual API exploration was needed.
 
 **2. Source mapping and schema design**
 
-From the API surface, Claude Code mapped 24 endpoints across 6 groups (stablecoins, tvl, volumes, fees, chain_history, users) to 3 Supabase tables. The schema was designed to mirror what the Dune dashboard needs — not what the API returns. This meant flattening nested JSON, normalizing unix timestamps to dates, and merging multiple endpoints into single rows (e.g., `defi_daily` combines TVL, volume, fees, stablecoins, options, OI, and active addresses from 7 different API calls).
+From the API surface, Claude Code mapped 16 endpoints across 6 groups (stablecoins, tvl, volumes, fees, chain_history, users) to 3 Supabase tables. The schema was designed to mirror what the Dune dashboard needs — not what the API returns. This meant flattening nested JSON, normalizing unix timestamps to dates, and merging multiple endpoints into single rows (e.g., `defi_daily` combines TVL, volume, fees, stablecoins, options, OI, and active addresses from 7 different API calls).
 
 **3. Incremental ingestion pattern**
 
@@ -260,32 +259,26 @@ Claude Code designed the matview layer to keep the pipeline simple (raw data onl
 
 **6. Dashboard queries and visualizations**
 
-23 dashboard queries were built using Claude Code's `dune` skill, which provides full Dune CLI access for query creation, execution, visualization management, and dashboard layout. Queries follow a hierarchy: base matviews → combined timeseries → tiered chain breakdowns → heatmaps.
+16 dashboard queries were built using Claude Code's `dune` skill, which provides full Dune CLI access for query creation, execution, visualization management, and dashboard layout. Queries follow a hierarchy: base matviews → combined timeseries → tiered chain breakdowns → heatmaps.
 
-### Development lineage
+### Development progression
 
 ```
-data-sourcer/defillama/     # Phase 1: sync fetcher, urllib, 16 sources
-    → explored DefiLlama API surface
-    → saved raw API reference
-    → identified endpoint quirks (naming, response shapes, paywalls)
+Phase 1: API exploration
+    → consumed llms-free.txt + raw API reference
+    → identified endpoint quirks (naming, response shapes, async population)
     ↓
-defi-analyst/                          # Phase 2: production pipeline
-    → async rewrite (aiohttp, 16 sources incl. active_addresses)
-    → added Supabase persistence layer (incremental ingestion)
-    → added Dune upload + matview layer
-    → 23 dashboard queries + visualizations
+Phase 2: Production pipeline
+    → async fetcher (aiohttp, 16 sources, bounded concurrency)
+    → Supabase persistence layer (incremental ingestion)
+    → Dune upload + matview layer
+    → 16 dashboard queries + visualizations
     → Claude Code skills for ongoing development
 ```
 
-### Claude Code skills for this project
+### Claude Code skills
 
-Three skills in `.claude/skills/` encode the project's conventions so Claude Code can extend the pipeline without re-learning the architecture:
-- **`dune`** — Dune CLI reference (query/viz/dashboard management, DuneSQL cheatsheet)
-- **`data-plumber`** — Pipeline conventions (fetch patterns, Supabase ingest, transform/upload, matview layer)
-- **`defi-overview`** — Dashboard-specific conventions (metric definitions, query hierarchy, color schemes)
-
-These skills mean a new metric can be added end-to-end (API → Supabase → Dune → matview → query → viz → dashboard) in a single Claude Code session.
+Three custom skills in `.claude/skills/` encode this project's conventions so Claude Code can extend the pipeline without re-learning the architecture. `data-plumber` captures the fetch → ingest → transform → upload patterns with Supabase incremental logic. `defi-overview` encodes the dashboard's metric definitions, query hierarchy, and color schemes. `dune` provides the full Dune CLI reference for query/viz/dashboard management.
 
 ## GitHub Actions
 
