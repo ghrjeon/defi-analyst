@@ -2,7 +2,7 @@
 
 Cross-chain DeFi analytics, from data pipeline to dashboard. Fetches metrics from [DefiLlama](https://defillama.com/)'s free API across 25 chains, persists in Supabase with incremental ingestion, and delivers daily-updating analysis on Dune.
 
-**Live dashboard:** [DeFi Overview: Cross-Chain Analysis](https://dune.com/ghrjeondata/defi-overview-cross-chain-analysis)(https://dune.com/ghrjeondata/defi-overview-cross-chain-analysis)
+**Live dashboard:** [DeFi Overview: Cross-Chain Analysis](https://dune.com/ghrjeondata/defi-overview-cross-chain-analysis) 
 
 ## Cross-Chain Analysis
 
