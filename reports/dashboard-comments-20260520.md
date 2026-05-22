@@ -1,36 +1,38 @@
 # DeFi Overview: Cross-Chain Analysis
 
-### This dashboard provides cross-chain analysis of DeFi trends focused on TVL, volume, and fees. Data is sourced from DefiLlama API (See Methodology).
+### This dashboard provides cross-chain analysis of DeFi trends focused on TVL, volume, and fees. Data is sourced from DefiLlama API (See [Methodology](#methodology)).
+
+---
 
 # Summary (As of May 2026)
 
-### DeFi TVL has contracted to $85.6B, down 42% from the November 2025 peak, but the ecosystem's revenue capacity has not followed. Daily fees of $55M roughly match the 2021 peak despite half the locked capital, indicating a structural improvement in how efficiently DeFi monetizes liquidity.
+### DeFi TVL has contracted to $85.6B, down 42% from the November 2025 peak, but the ecosystem's revenue capacity has remained strong. Daily fees of $55M roughly match the 2021 peak despite half the locked capital, indicating a structural improvement in how efficiently DeFi monetizes liquidity.
 
-### The chain landscape has split into two models. Ethereum still anchors 55% of TVL but its volume share has declined to 19%, with capital sitting primarily in staking, lending, and RWA. Execution-heavy chains such as Solana, Base, and Sui turn over capital at 3–6x Ethereum's rate and now command outsized shares of volume and fees relative to their TVL. Hyperliquid has emerged as the third-largest fee earner ($364M YTD), almost entirely from derivatives.
+### The chain landscape has split into two models. Ethereum still anchors 55% of TVL, but its volume share has declined to 19%, with capital sitting primarily in staking, lending, and RWA. Execution-heavy chains such as Solana, Base, and Sui turn over capital at 3–6x Ethereum's rate and now command outsized shares of volume and fees relative to their TVL. Hyperliquid has emerged as the third-largest fee earner ($364M YTD), almost entirely from derivatives.
 
-### This divergence reflects a broader shift: DeFi fee generation is no longer dominated by spot DEX trading. Lending, perps, prediction markets, launchpads, and staking all contribute meaningfully across chains. Lower TVL with sustained fees and diversifying revenue streams suggests the ecosystem is maturing, building durable economics rather than cycling on liquidity alone.
+### This divergence reflects a broader shift: DeFi fee generation is no longer dominated by spot Dex trading. Lending, perps, prediction markets, launchpads, and staking all contribute meaningfully across chains. Diversified product streams suggest the ecosystem is maturing, building durable economics rather than cycling on liquidity alone.
 
-### Current metrics understate the full picture. Perps volume ($26B daily) is excluded from velocity calculations, CLOB capital treatment is ambiguous, TVL figures diverge across providers, and active address coverage is incomplete for several major chains. Deeper segmentation, velocity by DeFi primitive, address composition by participant type, would sharpen the cross-chain comparison.
+### There are several limitations to the study. Current metrics understate the full picture. For example, perps volume ($26B daily) is excluded from velocity calculations, and CLOB capital treatment is ambiguous. A deeper data investigation into metrics and capital structures across different DeFi primitives would sharpen the cross-chain comparison. 
 
-### On Radar: As regulatory clarity, stablecoin adoption, and tokenized asset infrastructure evolve, the key question is which chains capture which types of DeFi activity across trading, collateral, and institutional use cases.
+### On Radar: As regulatory CLARITY improves, stablecoinsa nd tokenized assets are likely to become more tightly integrated with DeFi infrastructure. The key question is which chains will capture market share across different use cases, across expanding product x user types. 
+
 
 ---
 
 # Aggregate Trends
  
-### DeFi TVL (measured by value in DeFi smart contracts) stands at **$85.6B** as of May 2026, down **42%** from the November 2025 peak of **$147B** and roughly **48% below the 2021 high**. Part of this decline reflects lower asset prices against USD.
+### DeFi TVL stands at **$85.6B** as of May 2026, down **42%** from the November 2025 peak of **$147B** and roughly **48% below the 2021 high**, partly reflecting the lower asset prices against USD.
+### Despite the decline in locked capital, DeFi ecosystem generates approximately **$55M in daily fees**. This level is roughly in line with the Q4 2021 peak of **$50M**, suggesting that fee earned per dollar locked has structurally improved over the past four years. 
 
-### Despite the decline in locked capital, DeFi ecosystem generates approximately **$55M in daily fees**. Despite significantly lower TVL, fee generated is roughly in line with the Q4 2021 peak of **$50M**. This suggests that fee earned per dollar locked has structurally improved over the past four years. 
+### DeFi fees in data include Dex trading fees, lending interest, perps, and derivatives fees, launchpad fees, staking-related fees, and other protocol-level charges. The metric captures total fees paid by users, including both LP and protocol revenue. In [TVL and Fee Composition](#tvl-and-fee-composition), we further break down the diversity across chains.
 
-### DeFi fees in data include DEX trading fees, lending interest, perps, and derivatives fees, launchpad fees, staking-related fees, and other protocol-level charges. The metric captures total fees paid by users, including both LP and protocol revenue. In Fee Breakdown by Chain, we demonstrate the diversity in fee composition across chains.
+### Daily active DeFi addresses remain elevated at **12.5M**. While the aggregate liquidity contracts through cycles, user activity and protocol monetization seem to have found a new baseline as DeFi products continue to mature and diversify.
 
-### Daily active DeFi addresses remain elevated at **12.5M**. This suggests that although aggregate liquidity has contracted, user activity and protocol monetization remain resilient as DeFi products continue to diversify.
+### Dex Volume is currently running at approximately **$6.6B/day**, with the 30-day moving average generally in the **$5–7B** range, down from **$10B+** at the start of 2025. Solana leads with around 30% market share, followed by Ethereum and Binance. The composite DeFi volume is likely far larger, given that perps protocols are not included in the data.
 
-### Dex Volume is currently running at approximately **$6.6B/day**, with the 30-day moving average generally in the **$5–7B** range, down from **$10B+** at the start of 2025. Solana leads with around 30% market share followed by Ethereum and Binance. The composite DeFi volume is likely far larger, given that perps protocols generate approximately **$26B** in daily volume.
+### Active DeFi Addresses remain around **12.5M**, though this should be interpreted as a lower-bound estimate. Some chains tracked by DefiLlama, notably **Hyperliquid L1** and **Sui**, do not currently have active-address adapters, meaning reported figures likely understate actual DeFi participation. 
 
-### Active DeFi Addresses -- remain around **12.5M**, though this should be interpreted as a lower-bound estimate. Some chains tracked by DefiLlama, notably **Hyperliquid L1** and **Sui**, do not currently have active-address adapters, meaning reported figures likely understate actual DeFi participation. 
-
-### Ethereum remains the dominant DeFi TVL venue, holding **$44.2B**, or roughly **55%** of total DeFi TVL. Volume Dominance tells a different story. Solana makes 32% of DEX volume despite holding only 7% for TVL. Base has also gained volume share at 12%, while Ethereum's share declined from it's 70% heights in 2021 to around 19% since 2025.
+### Ethereum remains the dominant TVL venue, holding **$44.2B**, or roughly **55%** of total DeFi TVL. However, volume dominance tells a different story. **Solana** makes **32%** of Dex volume despite holding only 7% for TVL. Base has also gained volume share at 12%, while Ethereum's share declined from it's 70% heights in 2021 to around 19% since 2025.
 
 ---
 
@@ -40,7 +42,7 @@
 
 ### **TVL Efficiency** (fees/TVL) has roughly **doubled since 2021**: currently **0.00062** vs. 0.0003 in Q4 2021. DeFi protocols are earning 2x more fees per dollar on liquidity compared to four years ago. This signals structural improvements across with more mature and sophisticated fee tiers (concentrated liquidity, dynamic fees, etc.), broader protocol diversity beyond spot Dexs (lending, perps, prediction markets, valults, etc.), and the growth of higher-margin DeFi categories. TVL efficiency has improved +15.9% YTD, even as TVL and volume declined.
 
-### **Dex Velocity** (vol/TVL) sits at **0.077**, within the normal 0.06-0.10 range. Despite the TVL drawdown, the remaining capital is being actively traded. Given that the current Dex Volume only includes DEX and prediction markets, but not perps. Primitive level liquidity velocities would be an interesting research direction. Limitations of the study, such as Perps volume and CLOB liquidities, are further discussed in [Limitations and Future Analysis](#limitations-and-future-analysis).  
+### **Dex Velocity** (vol/TVL) sits at **0.077**, within the normal 0.06-0.10 range. Despite the TVL drawdown, the remaining capital is being actively traded. Given that the current Dex Volume only includes Dexs and prediction markets, but not perps. Examining velocities across DeFi primitives would be an interesting research direction. Limitations of the study, such as Perps volume and CLOB liquidities, are further discussed in [Limitations and Future Analysis](#limitations-and-future-analysis). 
 
 ---
 
@@ -60,9 +62,9 @@
 
 # TVL and Fee Compositions 
 
-### TVL composition reveals how each chain's DeFi capital is allocated. Ethereum's TVL is diversified across Liquid Staking (23%), Lending (17%), Staking Pool (12%), and a growing RWA segment (11%). Solana follows a similar staking-led profile but with more capital in DEX liquidity pools. Base is concentrated in Lending (48%), reflecting Aave/Morpho dominance. Tron is almost entirely Lending and CDPs. 
+### TVL composition reveals how each chain's DeFi capital is allocated. Ethereum's TVL is diversified across Liquid Staking (23%), Lending (17%), Staking Pool (12%), and a growing RWA segment (11%). Solana follows a similar staking-led profile but with more capital in DEX liquidity pools. Base is concentrated in Lending (48%), and Polygon is prediction markets (33.5%). 
 
-### DeFi fees include DEX trading fees, lending interest, derivatives and perps fees, launchpad fees, staking-related fees, and other protocol-level charges — capturing total fees paid by users, including both LP and protocol revenue. Fee composition varies sharply across chains. Ethereum's fees are spread across Liquid Staking (33%), Lending (21%), and CDPs (16%). Solana's $4.9M skews toward DEXs (39%) and Launchpads (23%). Hyperliquid generates half its fees from Derivatives, with another 39% from its Staking Pool. Polygon is almost entirely Prediction Market (95%). A broadening mix of use cases beyond spot DEXs, including lending, perps, prediction markets, and vaults now contribute more meaningfully to fee generation, a sign of maturing on-chain economies rather than trading-only activity.
+### DeFi fees include Dex trading fees, lending interest, derivatives and perps fees, launchpad fees, staking-related fees, and other protocol-level charges, capturing total fees paid by users, including both LP and protocol revenue. Fee composition varies sharply across chains. Ethereum's fees are spread across Liquid Staking (33%), Lending (21%), and CDPs (16%). Solana's $4.9M skews toward Dexs (39%) and Launchpads (23%). Hyperliquid generates half its fees from Derivatives, with another 39% from its Staking Pool. Polygon is almost entirely Prediction Market (95%). A broadening mix of use cases now contributes more meaningfully to fee generation, a sign of maturing on-chain economies rather than trading-only activity.
 
 ---
 
@@ -79,7 +81,6 @@
 ### Active address gaps. DefiLlama covers ~236 protocol adapters, but chains like Hyperliquid and Sui have zero coverage. Address composition analysis (e.g., retail vs. institutional vs. bots, participant-type shifts) would add depth but requires additional sourcing from Dune native tables, Allium, or chain-specific APIs.
 
 ---
-
 # Methodology
 
 ### Core Metrics
@@ -96,11 +97,11 @@
 - TVL Efficiency: Fee / TVL -- Measures fee generation per dollar of adjusted liquidity. Higher values indicate stronger fee efficiency.
 - Dex Velocity: Dex Volume (24h) / TVL -- Measures daily capital turnover per dollar of liquidity. Higher values indicate more active liquidity usage.
 
-**Data source**: [DefiLlama](https://defillama.com/) free API — on-chain DeFi metrics across 200+ chains, powered by community-maintained protocol adapters ([TVL adapters](https://github.com/DefiLlama/DefiLlama-Adapters) · [volume/fees/derivatives adapters](https://github.com/DefiLlama/dimension-adapters)). This dashboard pulls from 16 endpoints across two domains: [api.llama.fi](https://api.llama.fi/) (TVL, DEX volume, fees, open interest, options, active users) and [stablecoins.llama.fi](https://stablecoins.llama.fi/) (stablecoin market cap). See [API docs](https://api-docs.defillama.com/) for details — we found [llms-free.txt](https://api-docs.defillama.com/llms-free.txt) particularly helpful for development.
+**Data source**: [DefiLlama](https://defillama.com/) free API -- on-chain DeFi metrics across 200+ chains, powered by community-maintained protocol adapters ([TVL adapters](https://github.com/DefiLlama/DefiLlama-Adapters) · [volume/fees/derivatives adapters](https://github.com/DefiLlama/dimension-adapters)). This dashboard pulls from 16 endpoints across two domains: [api.llama.fi](https://api.llama.fi/) (TVL, DEX volume, fees, open interest, options, active users) and [stablecoins.llama.fi](https://stablecoins.llama.fi/) (stablecoin market cap). See [API docs](https://api-docs.defillama.com/) for details -- we found [llms-free.txt](https://api-docs.defillama.com/llms-free.txt) particularly helpful for development.
 
 **Protocol coverage**: Aggregate metrics include the full DeFi total across 200+ chains. Chain breakdowns cover a curated set of 25 top chains by TVL: Ethereum, Solana, BSC, Bitcoin, Tron, Base, Arbitrum, Hyperliquid L1, Polygon, etc. The sum of chain-level values will be less than the aggregate totals.
 
-**Pipeline**: Data is fetched, ingested into Supabase (incremental), exported as CSVs, and uploaded to Dune daily via GitHub Actions. All derived metrics (velocity, fee efficiency, etc.) are computed in Dune materialized views. For pipeline details, ingestion logic, and query source code, see [ghrjeon/defi-analyst](https://github.com/ghrjeon/defi-analyst) on GitHub.
+**Pipeline**: Data is fetched and uploaded to Dune daily. All derived metrics (velocity, TVL efficiency, etc.) are computed in Dune materialized views. For our pipeline details, ingestion logic, and query source code, see [ghrjeon/defi-analyst](https://github.com/ghrjeon/defi-analyst) on GitHub.
 
 ---
 
