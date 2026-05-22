@@ -42,23 +42,15 @@ Dune matviews  raw metrics → derived ratios → 16 queries → dashboard
 
 All data sourced from DefiLlama's free API (no key needed) across [api.llama.fi](https://api.llama.fi/) and [stablecoins.llama.fi](https://stablecoins.llama.fi/), powered by community-maintained protocol adapters ([TVL](https://github.com/DefiLlama/DefiLlama-Adapters) · [volume/fees/derivatives](https://github.com/DefiLlama/dimension-adapters)).
 
-## How It Was Built — AI-Driven with Claude Code
+## Built with Claude Code
 
-The entire project — API discovery, pipeline architecture, Supabase schema design, DuneSQL queries, visualizations, and dashboard assembly — was developed with [Claude Code](https://claude.ai/claude-code) using DefiLlama's LLM-friendly docs and custom AI skills built for this workflow.
+Pipeline architecture, schema design, DuneSQL queries, and dashboard assembly were developed with [Claude Code](https://claude.ai/claude-code). DefiLlama's [`llms-free.txt`](https://api-docs.defillama.com/llms-free.txt) provided a machine-readable spec for all 31 free endpoints, which informed the mapping of 16 endpoints to 3 Supabase tables.
 
-### `llms-free.txt` as the starting point
+Three custom skills in `.claude/skills/` encode project conventions:
 
-DefiLlama publishes [`llms-free.txt`](https://api-docs.defillama.com/llms-free.txt), a plain-text, LLM-optimized version of their API docs. Claude Code consumed this to understand all 31 free endpoints — paths, parameters, response shapes, and quirks — without manual API exploration. From there, it mapped 16 endpoints to 3 Supabase tables, designing the schema around what the dashboard needs rather than what the API returns.
-
-### Custom Claude Code skills
-
-Three skills in `.claude/skills/` encode this project's conventions so Claude Code can extend the pipeline and dashboard without re-learning the architecture:
-
-- **`data-plumber`** — Pipeline building patterns for this project: async fetch, Supabase incremental ingestion, transform/upload workflows, matview conventions, SQL naming. 5 reference docs.
-- **`defi-overview`** — Dashboard conventions: derived metric definitions, query hierarchy with IDs, heatmap patterns, color schemes, table mappings.
-- **`dune`** — Full Dune CLI reference: query management, dataset discovery, visualization creation, dashboard assembly, DuneSQL syntax. 10 reference docs.
-
-`data-plumber` and `defi-overview` were custom-built for this project. Together with the `dune` skill, they allow Claude Code to add a new metric end-to-end — from fetch source to Supabase table to Dune matview to dashboard visualization — while following established conventions.
+- **`data-plumber`** — Pipeline patterns: async fetch, Supabase incremental ingestion, transform/upload, matview conventions.
+- **`defi-overview`** — Dashboard conventions: derived metrics, query IDs, heatmap patterns, color schemes, table mappings.
+- **`dune`** — Dune CLI reference: query management, dataset discovery, visualization, dashboard assembly, DuneSQL syntax.
 
 ## Repository Structure
 
@@ -100,7 +92,6 @@ reports/                      # Dashboard commentary and narratives
 |--------|---------|-----------------|
 | velocity | dex_volume / tvl | Capital turnover |
 | fee_per_tvl | fees / tvl | Revenue per dollar locked |
-| volume_efficiency | fees / dex_volume | Fee extraction per dollar traded |
 
 ### Chains tracked
 
