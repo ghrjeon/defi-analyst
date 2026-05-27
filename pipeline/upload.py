@@ -5,10 +5,10 @@ Creates tables with explicit schema, then inserts CSV data.
 Requires DUNE_API_KEY env var.
 
 Usage:
-    python upload.py                  # create + insert both tables
+    python upload.py                  # clear + insert all tables (default)
     python upload.py --table daily    # just aggregate table
     python upload.py --table chain    # just chain table
-    python upload.py --clear          # clear tables before insert
+    python upload.py --no-clear       # append without clearing (use with caution)
     python upload.py --dry-run        # show what would happen
 """
 
@@ -154,8 +154,12 @@ def _resolve_config(config, test=False):
     return {**config, "table_name": config["table_name"] + "_test"}
 
 
-def run(tables=None, clear=False, dry_run=False, test=False):
-    """Run upload. Called by run.py orchestrator or standalone."""
+def run(tables=None, clear=True, dry_run=False, test=False):
+    """Run upload. Called by run.py orchestrator or standalone.
+
+    Always clears before insert by default — transform.py exports the full
+    dataset each time, so appending would create duplicates.
+    """
     targets = tables or ["daily", "chain", "category"]
 
     if dry_run:
@@ -188,7 +192,7 @@ def run(tables=None, clear=False, dry_run=False, test=False):
 def main():
     parser = argparse.ArgumentParser(description="Upload defi-overview CSVs to Dune")
     parser.add_argument("--table", choices=list(TABLES.keys()), help="Upload specific table")
-    parser.add_argument("--clear", action="store_true", help="Clear tables before insert")
+    parser.add_argument("--no-clear", action="store_true", help="Skip clearing tables before insert (append mode)")
     parser.add_argument("--recreate", action="store_true", help="Delete and recreate tables (schema change)")
     parser.add_argument("--dry-run", action="store_true", help="Show what would happen")
     parser.add_argument("--test", action="store_true", help="Upload to _test tables instead of production")
@@ -206,7 +210,7 @@ def main():
 
     run(
         tables=[args.table] if args.table else None,
-        clear=args.clear,
+        clear=not args.no_clear,
         dry_run=args.dry_run,
         test=args.test,
     )

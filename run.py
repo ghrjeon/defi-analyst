@@ -26,7 +26,7 @@ def main():
     parser.add_argument("--steps", help="Comma-separated steps to run (default: all)")
     parser.add_argument("--skip", help="Comma-separated steps to skip")
     parser.add_argument("--full", action="store_true", help="Force full ingest refresh")
-    parser.add_argument("--clear", action="store_true", help="Clear Dune tables before upload")
+    parser.add_argument("--no-clear", action="store_true", help="Skip clearing Dune tables before upload (append mode)")
     parser.add_argument("--dry-run", action="store_true", help="Preview without side effects")
     args = parser.parse_args()
 
@@ -77,7 +77,7 @@ def main():
 
         elif step == "upload":
             from pipeline.upload import run as upload_run
-            upload_run(clear=args.clear, dry_run=args.dry_run)
+            upload_run(clear=not args.no_clear, dry_run=args.dry_run)
 
         elapsed = time.time() - t0
         print(f"  [{step} completed in {elapsed:.1f}s]\n")
