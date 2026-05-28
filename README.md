@@ -20,18 +20,31 @@ Derived metrics (velocity, fee efficiency, volume efficiency) are computed in Du
 
 The pipeline turns 16 DefiLlama API endpoints into a structured, daily-updating analytics layer on Dune:
 
-```
-DefiLlama API (16 endpoints, 2 domains, 25 chains)
-    ↓
-fetch.py       async (aiohttp, 8 concurrent → 175 requests in ~15s)
-    ↓
-ingest.py      parse + flatten → Supabase (incremental by MAX(date))
-    ↓
-transform.py   SELECT from Supabase → Dune-ready CSVs
-    ↓
-upload.py      CSV → Dune uploaded tables
-    ↓
-Dune matviews  raw metrics → derived ratios → 16 queries → dashboard
+```mermaid
+%%{init: {"look":"handDrawn", "theme":"neutral", "flowchart": {"curve": "basis"}}}%%
+flowchart LR
+    SRC["DefiLlama API
+    16 endpoints · 2 domains · 25 chains"]
+
+    subgraph ETL["ETL"]
+        direction LR
+        F((Fetch))
+        I((Ingest))
+        T((Transform))
+        U((Upload))
+        F --> I --> T --> U
+    end
+
+    SRC --> ETL
+    ETL --> DB{Supabase}
+    DB --> DUNE[Dune Tables
+    + Matviews]
+    DUNE --> Q1[Raw Metrics]
+    DUNE --> Q2[Derived Ratios]
+    DUNE --> Q3[16 Queries]
+    Q1 --> DASH[DeFi Overview Dashboard]
+    Q2 --> DASH
+    Q3 --> DASH
 ```
 
 **Supabase as the middle layer.** Raw JSON from DefiLlama is nested, inconsistently shaped, and ephemeral. Supabase provides a persistent, typed store. Incremental ingestion (`MAX(date)` watermark → insert only new rows) means daily runs are fast and efficient — first run ingests all historical data, subsequent runs append only what's new.
